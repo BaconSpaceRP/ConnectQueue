@@ -3,9 +3,7 @@ local Config = {}
 -- Priority list can be any identifier. (hex steamid, steamid32, ip) Integer = power over other priorities
 -- A lot of the steamid converting websites are broken rn and give you the wrong steamid. I use https://steamid.xyz/ with no problems.
 Config.Priority = {
-    ["STEAM_0:1:#######"] = 50,
-    ["steam:110000######"] = 25,
-    ["ip:127.0.0.0"] = 85
+    ["steam:182273308"] = 100 -- Bacon_Space
 }
 
 Config.RequireSteam = true
@@ -25,16 +23,16 @@ end
 
 -- easy localization
 Config.Language = {
-    joining = "Joining...",
-    connecting = "Connecting...",
-    idrr = "Error: Couldn't retrieve any of your id's, try restarting.",
-    err = "There was an error",
+    joining = "[BSRP] [Auto Queue] Joining...",
+    connecting = "[BSRP] [Auto Queue] Connecting...",
+    idrr = "[BSRP] [Auto Queue] Error: Couldn't retrieve any of your id's, try restarting.",
+    err = "[BSRP] [Auto Queue] There was an error",
     pos = "[Auto Queue] You are %d/%d in queue",
-    connectingerr = "Error adding you to connecting list",
-    timedout = "Timed out?",
-    wlonly = "You must be whitelisted to join this server",
-    banned = "You are banned | reason: %s",
-    steam = "Error: Steam must be running"
+    connectingerr = "[BSRP] [Auto Queue] Error adding you to connecting list",
+    timedout = "[BSRP] [Auto Queue] Timed out?",
+    wlonly = "[BSRP] [Auto Queue] You must be whitelisted to join this server",
+    banned = "[BSRP] [Auto Queue] You are banned | reason: %s",
+    steam = "[BSRP] [Auto Queue] Error: Steam must be running"
 }
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -164,7 +162,7 @@ function Queue:AddToQueue(ids, connectTime, name, src, deferrals)
             end
 
             if _pos then
-                self:DebugPrint(string_format("%s[%s] was prioritized and placed %d/%d in queue", tmp.name, ids[1], _pos, queueCount))
+                self:DebugPrint(string_format("%s[%s] was Golden Ticked and placed %d/%d in queue", tmp.name, ids[1], _pos, queueCount))
                 break
             end
         end
@@ -280,7 +278,7 @@ function Queue:AddPriority(id, power)
             if k and type(k) == "string" and v and type(v) == "number" then
                 self.Priority[k] = v
             else
-                self:DebugPrint("Error adding a priority id, invalid data passed")
+                self:DebugPrint("Error adding a Golden Ticket id, invalid data passed")
                 return false
             end
         end
@@ -638,41 +636,41 @@ AddEventHandler("rconCommand", function(command, args)
     -- adds a fake player to the queue for debugging purposes, this will freeze the queue
     if command == "addq" then
         print("==ADDED FAKE QUEUE==")
-        Queue:AddToQueue({"steam:110000103fd1bb1"..testAdds}, os_time(), "Fake Player", "debug")
+        Queue:AddToQueue("[BSRP] [Auto Queue] ",{"steam:110000103fd1bb1"..testAdds}, os_time(), "Fake Player", "debug")
         testAdds = testAdds + 1
         CancelEvent()
 
     -- removes targeted id from the queue
     elseif command == "removeq" then
         if not args[1] then return end
-        print("REMOVED " .. Queue.QueueList[tonumber(args[1])].name .. " FROM THE QUEUE")
+        print("[BSRP] [Auto Queue] REMOVED " .. Queue.QueueList[tonumber(args[1])].name .. " FROM THE QUEUE")
         table_remove(Queue.QueueList, args[1])
         CancelEvent()
     
     -- print the current queue list
     elseif command == "printq" then
-        print("==CURRENT QUEUE LIST==")
+        print("[BSRP] [Auto Queue] ==CURRENT QUEUE LIST==")
         for k,v in ipairs(Queue.QueueList) do
-            print(k .. ": [src: " .. v.source .. "] " .. v.name .. "[" .. v.ids[1] .. "] | Priority: " .. (tostring(v.priority and true or false)) .. " | Last Msg: " .. (v.source ~= "debug" and GetPlayerLastMsg(v.source) or "debug") .. " | Timeout: " .. v.timeout)
+            print("[BSRP] [Auto Queue] "..k .. ": [src: " .. v.source .. "] " .. v.name .. "[" .. v.ids[1] .. "] | Priority: " .. (tostring(v.priority and true or false)) .. " | Last Msg: " .. (v.source ~= "debug" and GetPlayerLastMsg(v.source) or "debug") .. " | Timeout: " .. v.timeout)
         end
         CancelEvent()
 
     -- adds a fake player to the connecting list
     elseif command == "addc" then
-        print("==ADDED FAKE CONNECTING QUEUE==")
+        print("[BSRP] [Auto Queue] ==ADDED FAKE CONNECTING QUEUE==")
         Queue:AddToConnecting({"debug"})
         CancelEvent()
 
     -- removes a player from the connecting list
     elseif command == "removec" then
-        print("==REMOVED FAKE CONNECTING QUEUE==")
+        print("[BSRP] [Auto Queue] ==REMOVED FAKE CONNECTING QUEUE==")
         if not args[1] then return end
         table_remove(Queue.Connecting, args[1])
         CancelEvent()
 
     -- prints a list of players that are connecting
     elseif command == "printc" then
-        print("==CURRENT CONNECTING LIST==")
+        print("[BSRP] [Auto Queue] ==CURRENT CONNECTING LIST==")
         for k,v in ipairs(Queue.Connecting) do
             print(k .. ": [src: " .. v.source .. "] " .. v.name .. "[" .. v.ids[1] .. "] | Priority: " .. (tostring(v.priority and true or false)) .. " | Last Msg: " .. (v.source ~= "debug" and GetPlayerLastMsg(v.source) or "debug") .. " | Timeout: " .. v.timeout)
         end
@@ -687,7 +685,7 @@ AddEventHandler("rconCommand", function(command, args)
 
     -- prints a list of priority id's
     elseif command == "printp" then
-        print("==CURRENT PRIORITY LIST==")
+        print("[BSRP] [Auto Queue] ==CURRENT PRIORITY LIST==")
         for k,v in pairs(Queue.Priority) do
             print(k .. ": " .. tostring(v))
         end
@@ -695,11 +693,11 @@ AddEventHandler("rconCommand", function(command, args)
     
     -- prints the current player count
     elseif command == "printcount" then
-        print("Player Count: " .. Queue.PlayerCount)
+        print("[BSRP] [Auto Queue] Player Count: " .. Queue.PlayerCount)
         CancelEvent()
     
     elseif command == "printt" then
-        print("Thread Count: " .. Queue.ThreadCount)
+        print("[BSRP] [Auto Queue] Thread Count: " .. Queue.ThreadCount)
         CancelEvent()
     end
 end)
