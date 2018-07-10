@@ -3,7 +3,7 @@ local Config = {}
 -- Priority list can be any identifier. (hex steamid, steamid32, ip) Integer = power over other priorities
 -- A lot of the steamid converting websites are broken rn and give you the wrong steamid. I use https://steamid.xyz/ with no problems.
 Config.Priority = {
-    ["steam:182273308"] = 100 -- Bacon_Space
+    ["steam:11000010add451c"] = 100 -- Bacon_Space
 }
 
 Config.RequireSteam = true
